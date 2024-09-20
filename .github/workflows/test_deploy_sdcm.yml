@@ -1,4 +1,4 @@
-name: test-deploy
+name: test_deploy_sdcm
 
 on:
   workflow_dispatch:
@@ -25,4 +25,4 @@ jobs:
 
     - name: Run build script
       shell: pwsh
-      run: ./deploy.ps1 -RepoUrl "${{ secrets.TEST_REPO_URL }}" -User "${{ secrets.TEST_USER }}" -Pwd "${{ secrets.TEST_PWD }}"
+      run: ./deploy.ps1 -RepoUrl "${{ secrets.TEST_REPO_URL }}" -User "${{ secrets.TEST_USER }}" -Pwd "${{ secrets.TEST_PWD }}" -Target simple_sdcm

@@ -1,4 +1,4 @@
-name: deploy
+name: deploy_msteams
 
 on:
   workflow_dispatch:
@@ -25,4 +25,4 @@ jobs:
 
     - name: Run build script
       shell: pwsh
-      run: ./deploy.ps1 -RepoUrl "${{ secrets.REPO_URL }}" -User "${{ secrets.USER }}" -Pwd "${{ secrets.PWD }}"
+      run: ./deploy.ps1 -RepoUrl "${{ secrets.REPO_URL }}" -User "${{ secrets.USER }}" -Pwd "${{ secrets.PWD }}" -Target simple_msteams
