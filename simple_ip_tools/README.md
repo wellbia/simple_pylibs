@@ -23,16 +23,12 @@ pip install -e .
 
 ## Usage
 ```python
-from simple_ip_tools import NetworkStore
+import simple_ip_tools
 
-# create a store and add networks
-store = NetworkStore()
-store.add_network("192.168.0.0/24", "Office LAN")
-store.add_network("10.0.0.0/8", "Data Center")
-
-# lookup an IP address
-owner = store.lookup("192.168.0.42")
-print(owner)  # outputs: Office LAN
+simple_ip_tools.gen_db_from_maxmind_csv("ipdb.bin")
+ipdb = simple_ip_tools.load_db("ipdb.bin")
+simple_ip_tools.lookup_db(ipdb, "1.2.3.4")
+simple_ip_tools.lookup_db(ipdb, "2a01:cb06:c200:3e51:103d:6143:42e0:3d48")
 ```
 
 ## Contributing
