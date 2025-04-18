@@ -33,12 +33,12 @@ jobs:
         pip install setuptools wheel twine
 
     - name: Build and publish
-      working-directory: "{{ github.event.inputs.lib_name }}"
+      working-directory: ${{ github.event.inputs.lib_name }}
       run: python setup.py bdist_wheel
 
     - name: Publish package distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.TEST_PYPI_API_TOKEN}}
-        packages-dir: "{{ github.envt.inputs.lib_name }}/dist"
+        packages-dir: ${{ github.envt.inputs.lib_name }}/dist
         repository-url: https://test.pypi.org/legacy/
