@@ -240,8 +240,5 @@ def __load_network_to_registered_country(csv_path):
         for row in reader:
             network = row["network"].strip()
             reg_id = row["geoname_id"].strip()
-            if reg_id.empty():
-                reg_id = row["registered_country_geoname_id"].strip()
-
             mapping[network] = int(reg_id) if reg_id else None
     return mapping
