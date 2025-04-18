@@ -205,7 +205,7 @@ def lookup_db(db: dict[IPVersion, pytricia.PyTricia], ip: str) -> GeoLocation | 
         ip_obj = ipaddress.ip_address(ip)
         if ip_obj.is_private:
             return Private()
-        return CountryOnly(country_iso_code=ptv[ip])
+        return ptv[ip]
     except KeyError:
         # IP not found in the database and is not private
         return None
@@ -214,7 +214,7 @@ def lookup_db(db: dict[IPVersion, pytricia.PyTricia], ip: str) -> GeoLocation | 
         return None
 
 
-def __load_geoname_country_map(csv_path):
+def __load_geoname_country_map(csv_path: str) -> dict[int, GeoLocation]:
     """
     Extracts geoname_id and country_iso_code from the CSV file
     and returns a dict mapping geoname_id to country_iso_code.
@@ -222,14 +222,21 @@ def __load_geoname_country_map(csv_path):
     mapping = {}
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            gid = int(row["geoname_id"])
-            iso = row["country_iso_code"]
-            mapping[gid] = iso
+        if "city_name" in reader.fieldnames:
+            for row in reader:
+                gid = int(row["geoname_id"])
+                iso = row["country_iso_code"].strip()
+                city = row["city_name"].strip()
+                mapping[gid] = CountryCity(country_iso_code=iso, city_name=city)
+        else:
+            for row in reader:
+                gid = int(row["geoname_id"])
+                iso = row["country_iso_code"].strip()
+                mapping[gid] = CountryOnly(country_iso_code=iso)
     return mapping
 
 
-def __load_network_to_registered_country(csv_path):
+def __load_network_to_registered_country(csv_path: str) -> dict[str, Optional[int]]:
     """
     Extracts the network and registered_country_geoname_id columns from the CSV
     and returns a dict mapping network to registered_country_geoname_id.
