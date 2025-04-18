@@ -51,8 +51,38 @@ import ipaddress
 import pickle
 import csv
 import pytricia
+from dataclasses import dataclass
+from typing import Optional
 
 __version__ = "0.2.0"
+
+
+@dataclass
+class CountryOnly:
+    """
+    Represents a country with its ISO code."""
+
+    country_iso_code: str
+
+
+@dataclass
+class CountryCity:
+    """
+    Represents a country and city with their ISO codes."""
+
+    country_iso_code: str
+    city_name: str
+
+
+@dataclass
+class Private:
+    """
+    Represents a private IP address."""
+
+    pass
+
+
+GeoLocation = CountryOnly | CountryCity | Private
 
 
 class IPVersion(Enum):
@@ -158,7 +188,7 @@ def load_db(db_path: str) -> dict[IPVersion, pytricia.PyTricia]:
         return {IPVersion.IPV4: ptv4, IPVersion.IPV6: ptv6}
 
 
-def lookup_db(db: dict[IPVersion, pytricia.PyTricia], ip: str) -> str | None:
+def lookup_db(db: dict[IPVersion, pytricia.PyTricia], ip: str) -> GeoLocation | None:
     """
     Lookup the country ISO code for a given IP address using the loaded database.
     """
@@ -172,9 +202,16 @@ def lookup_db(db: dict[IPVersion, pytricia.PyTricia], ip: str) -> str | None:
         return None
 
     try:
-        return ptv[ip]
+        ip_obj = ipaddress.ip_address(ip)
+        if ip_obj.is_private:
+            return Private()
+        return CountryOnly(country_iso_code=ptv[ip])
+    except KeyError:
+        # IP not found in the database and is not private
+        return None
     except ValueError:
-        return "Private"
+        # Should not happen if get_ip_version worked, but handle defensively
+        return None
 
 
 def __load_geoname_country_map(csv_path):
