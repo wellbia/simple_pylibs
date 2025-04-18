@@ -33,7 +33,7 @@ jobs:
         pip install setuptools wheel twine
 
     - name: Build and publish
-      working-directory: ./{{ github.event.inputs.lib_name }}
+      working-directory: "{{ github.event.inputs.lib_name }}"
       run: python setup.py bdist_wheel
 
     - name: Publish package distribution to PyPI
