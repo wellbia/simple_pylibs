@@ -8,8 +8,8 @@ with open("README.md", "r", encoding="utf-8") as f:
 setup(
     name="simple-sftp",
     version=simple_sftp.__version__,
-    author="sprumin",
-    author_email="sprumin@wellbia.com",
+    author="Wellbia.com Co.,Ltd.",
+    author_email="opensource@wellbia.com",
     long_description=long_description,
     long_description_content_type="text/markdown",
     description="Simple way to handle sftp with python",

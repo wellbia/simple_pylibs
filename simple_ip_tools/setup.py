@@ -8,8 +8,8 @@ with open("README.md", "r", encoding="utf-8") as f:
 setup(
     name="simple-ip-tools",
     version=simple_ip_tools.__version__,
-    author="hgyoon",
-    author_email="hgyoon@wellbia.com",
+    author="Wellbia.com Co.,Ltd.",
+    author_email="opensource@wellbia.com",
     long_description=long_description,
     long_description_content_type="text/markdown",
     description="A simple IP address to country mapping tool",

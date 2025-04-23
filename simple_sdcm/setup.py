@@ -8,7 +8,8 @@ with open("README.md", "r", encoding="utf-8") as f:
 setup(
     name="simple-sdcm",
     version=simple_sdcm.__version__,
-    author="wellbia",
+    author="Wellbia.com Co.,Ltd.",
+    author_email="opensource@wellbia.com",
     long_description=long_description,
     long_description_content_type="text/markdown",
     description="Simple way to use Microsoft SDCM(Surface Dev Center Manager)",
