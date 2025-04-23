@@ -54,7 +54,7 @@ import pytricia
 from dataclasses import dataclass
 from typing import Optional
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 
 @dataclass
