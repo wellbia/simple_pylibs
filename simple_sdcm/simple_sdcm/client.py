@@ -85,6 +85,8 @@ class Client:
 
         connection.request(method, url, body, headers=headers)
         response = connection.getresponse()
+        status = response.status
+        reason = response.reason
         response_data = response.read().decode().strip()
 
         if len(response_data) != 0:
@@ -92,6 +94,12 @@ class Client:
         else:
             response_json = {}
         connection.close()
+
+        if status >= 400:
+            raise RuntimeError(
+                f"Dev Center API request failed: {method} {url} "
+                f"returned {status} {reason}: {response_json}"
+            )
 
         return response_json
 
@@ -153,16 +161,23 @@ class Client:
         while True:
             res = self.get_product_submission_status(product_id, submission_id)
 
+            for item in res.get("downloads", {}).get("items", []):
+                if item.get("type", "").lower() == "signedpackage":
+                    url = item.get("url")
+                    if url:
+                        return url
+
+            workflow_status = res.get("workflowStatus", {})
+            step = workflow_status.get("currentStep")
+            state = workflow_status.get("state")
+
             if verbose:
-                step = res["workflowStatus"]["currentStep"]
-                state = res["workflowStatus"]["state"]
-                print(f"{step} {state}")
+                if step or state:
+                    print(f"{step} {state}")
+                else:
+                    print(f"workflowStatus unavailable: {res}")
 
-            if res["workflowStatus"]["state"] == "failed":
-                return
-
-            for item in res["downloads"]["items"]:
-                if item["type"].lower() == "signedpackage":
-                    return item["url"]
+            if state and state.lower() == "failed":
+                raise RuntimeError(f"SDCM submission failed: {res}")
 
             time.sleep(5)
