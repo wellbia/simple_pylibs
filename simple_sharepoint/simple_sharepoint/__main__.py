@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--remote-dir", help="destination folder", required=True)
     parser.add_argument("--client-id", help="client id", required=True)
     parser.add_argument("--client-secret", help="client secret", required=True)
+    parser.add_argument("--tenant-id", help="tenant id or tenant domain", required=False)
     parser.add_argument("--default-path", help="default path", required=True)
     parser.add_argument("--base-url", help="base url", required=True)
 
@@ -27,7 +28,7 @@ def main():
         parser.print_help()
         sys.exit(2)
 
-    c = client.Client(args.client_id, args.client_secret, args.base_url)
+    c = client.Client(args.client_id, args.client_secret, args.base_url, args.tenant_id)
     upload_data(c, args.default_path, args.filename, args.remote_dir)
 
 

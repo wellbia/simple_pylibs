@@ -16,13 +16,17 @@ from simple_sharepoint.client import Client
 
 client_id = < CLIENT_ID >
 client_secret = < CLIENT_SECRET >
+tenant_id = < TENANT_ID >
 base_url = < BASE URL >
 
-c = Client(client_id, client_secret, base_url)
+c = Client(client_id, client_secret, base_url, tenant_id)
 ```
 
-- See the link below for instructions on creating <b>CLIENT_ID</b> and <b>CLIENT_SECRET</b><br>
-[Make Token](https://learn.microsoft.com/en-us/sharepoint/dev/solution-guidance/security-apponly-azureacs)
+- <b>TENANT_ID</b> can be either the tenant ID or tenant domain, such as `contoso.onmicrosoft.com`.<br>
+If omitted, it is inferred from the SharePoint host name. For example, `https://contoso.sharepoint.com` becomes `contoso.onmicrosoft.com`.
+
+- See the link below for instructions on creating <b>CLIENT_ID</b> and <b>CLIENT_SECRET</b> for Entra ID app authentication.<br>
+[Make Token](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app)
 
 - <b>BASE_URL</b> refers to the main URL of the sharepoint.<br>
 ( format ) https://<SHAREPOINT_DOMAIN>/sites/<SHAREPOINT_SITE><br>
@@ -126,10 +130,10 @@ list_dir(src)
 ## Use console scripts
 
 ```shell
-simple-sharepoint-cli < FILE_PATH > --client_id < CLIENT_ID > --client-secret < CLIENT_SECRET > --base-url < BASE_URL > --default_path < DEFAULT_PATH > --remote-dir < REMOTE_DIR >
+simple-sharepoint-cli < FILE_PATH > --client-id < CLIENT_ID > --client-secret < CLIENT_SECRET > --tenant-id < TENANT_ID > --base-url < BASE_URL > --default-path < DEFAULT_PATH > --remote-dir < REMOTE_DIR >
 ```
 
-- <b><i>CLIENT_ID</i></b>, <b><i>CLIENT_SECRET</i></b>, <b><i>BASE_URL</i></b> See item Usage.
+- <b><i>CLIENT_ID</i></b>, <b><i>CLIENT_SECRET</i></b>, <b><i>TENANT_ID</i></b>, <b><i>BASE_URL</i></b> See item Usage.
 - <b><i>DEFAULT_PATH</i></b> See upload_dir. same SHAREPOINT_BASE_PATH
 - <b><i>REMOTE_DIR</i></b> See upload_dir. same SHAREPOINT_TARGET_PATH
 

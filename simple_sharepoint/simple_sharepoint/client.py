@@ -1,20 +1,42 @@
-from office365.runtime.auth.authentication_context import ClientCredential
-from office365.runtime.client_request_exception import ClientRequestException
+from office365.runtime.auth.token_response import TokenResponse
 from office365.sharepoint.client_context import ClientContext
 
 from .utils import check_path_exists, create_folder, print_upload_progress
 
 import os
+from urllib.parse import urlparse
 
 
 class Client():
-	def __init__(self, cid: str, csec: str, base_url: str):
+	def __init__(self, cid: str, csec: str, base_url: str, tenant_id: str=None):
 		self.cid = cid
 		self.csec = csec
 		self.base_url = base_url
+		self.tenant_id = tenant_id or self._infer_tenant_id()
 
-		credentials = ClientCredential(self.cid, self.csec)
-		self.ctx = ClientContext(self.base_url).with_credentials(credentials)
+		self.ctx = ClientContext(self.base_url).with_access_token(self._acquire_token)
+
+	def _infer_tenant_id(self):
+		hostname = urlparse(self.base_url).hostname or ""
+		tenant_name = hostname.split(".")[0]
+		if not tenant_name:
+			raise ValueError("tenant_id is required when base_url host cannot be parsed")
+		return f"{tenant_name}.onmicrosoft.com"
+
+	def _get_sharepoint_scope(self):
+		parsed_url = urlparse(self.base_url)
+		return f"{parsed_url.scheme}://{parsed_url.netloc}/.default"
+
+	def _acquire_token(self):
+		import msal
+
+		app = msal.ConfidentialClientApplication(
+			self.cid,
+			authority=f"https://login.microsoftonline.com/{self.tenant_id}",
+			client_credential=self.csec,
+		)
+		result = app.acquire_token_for_client(scopes=[self._get_sharepoint_scope()])
+		return TokenResponse.from_json(result)
 	
 	def upload_file(self, src: str, dst: str, check_dir: bool=True):
 		try:
