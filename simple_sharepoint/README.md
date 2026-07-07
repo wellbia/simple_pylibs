@@ -1,6 +1,9 @@
 Simple way to handle sharepoint with python.
 Provides the ability to upload files and directories. 
 
+This package authenticates with Microsoft Entra ID client credentials and uses
+Microsoft Graph for SharePoint document library access.
+
 ## Installation
 
 install the latest stable version using `pip`
@@ -28,9 +31,15 @@ If omitted, it is inferred from the SharePoint host name. For example, `https://
 - See the link below for instructions on creating <b>CLIENT_ID</b> and <b>CLIENT_SECRET</b> for Entra ID app authentication.<br>
 [Make Token](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app)
 
+- Grant Microsoft Graph application permission for the target SharePoint site and complete admin consent.<br>
+Use `Sites.Read.All` for read-only workflows, or `Sites.ReadWrite.All` / `Sites.FullControl.All` for uploads and folder creation.
+
 - <b>BASE_URL</b> refers to the main URL of the sharepoint.<br>
 ( format ) https://<SHAREPOINT_DOMAIN>/sites/<SHAREPOINT_SITE><br>
 ( ex ) `https://test.sharepoint.com/sites/testsite`
+
+- SharePoint paths may use the existing server-relative format, such as `/sites/testsite/Shared Documents/excel/example`.<br>
+The site prefix and default document library name are normalized to Microsoft Graph drive-root paths internally.
 
 
 ## Functions
@@ -139,4 +148,5 @@ simple-sharepoint-cli < FILE_PATH > --client-id < CLIENT_ID > --client-secret < 
 
 ## Third Party Libraries and Dependencies
 
-- [Office365-REST-Python-Client](https://pypi.org/project/Office365-REST-Python-Client/)
+- [Microsoft Authentication Library (MSAL) for Python](https://pypi.org/project/msal/)
+- [Requests](https://pypi.org/project/requests/)

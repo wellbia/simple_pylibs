@@ -19,7 +19,10 @@ setup(
             "simple-sharepoint-cli=simple_sharepoint.__main__:main",
         ],
     },
-    install_requires=["Office365-REST-Python-Client==2.6.2"],
+    install_requires=[
+        "msal==1.21.0",
+        "requests==2.28.2",
+    ],
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.6",
