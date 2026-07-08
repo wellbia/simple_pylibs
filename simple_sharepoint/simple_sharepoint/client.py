@@ -12,6 +12,11 @@ from .utils import print_upload_progress
 
 GRAPH_ROOT = "https://graph.microsoft.com/v1.0"
 GRAPH_SCOPE = ["https://graph.microsoft.com/.default"]
+GRAPH_TOKEN_AUDIENCES = {
+    "https://graph.microsoft.com",
+    "00000003-0000-0000-c000-000000000000",
+}
+SHAREPOINT_REST_TOKEN_AUDIENCE = "00000003-0000-0ff1-ce00-000000000000"
 SIMPLE_UPLOAD_MAX_SIZE = 250 * 1024 * 1024
 UPLOAD_CHUNK_SIZE = 10 * 1024 * 1024
 
@@ -184,23 +189,51 @@ class Client:
     def _validate_graph_token(self, token: str):
         claims = self._decode_jwt_claims(token)
         audience = claims.get("aud")
-        roles = claims.get("roles", [])
+        roles = self._list_claim(claims.get("roles"))
+        scopes = self._split_scope_claim(claims.get("scp"))
+        permissions = roles + scopes
 
-        if audience != "https://graph.microsoft.com":
+        if audience == SHAREPOINT_REST_TOKEN_AUDIENCE:
+            raise RuntimeError(
+                "invalid Microsoft Graph token audience. "
+                "The token was issued for SharePoint REST instead of Microsoft Graph; "
+                "make sure requests use scope {0!r} and no Office365 REST _api "
+                "client path remains. tenant={1!r} aud={2!r}".format(
+                    GRAPH_SCOPE[0], self.tenant_id, audience
+                )
+            )
+
+        if audience not in GRAPH_TOKEN_AUDIENCES:
             raise RuntimeError(
                 "invalid Microsoft Graph token audience "
                 "tenant={0!r} aud={1!r}".format(self.tenant_id, audience)
             )
 
-        if not any(role.startswith("Sites.") for role in roles):
+        if not any(permission.startswith("Sites.") for permission in permissions):
             raise RuntimeError(
                 "Microsoft Graph application permission is missing. "
                 "Grant Microsoft Graph Application permission Sites.Read.All "
                 "for reads or Sites.ReadWrite.All/Sites.FullControl.All for writes, "
-                "then complete admin consent. tenant={0!r} roles={1!r}".format(
-                    self.tenant_id, roles
+                "then complete admin consent. tenant={0!r} roles={1!r} scp={2!r}".format(
+                    self.tenant_id, roles, scopes
                 )
             )
+
+    @staticmethod
+    def _split_scope_claim(scope_claim: Any) -> List[str]:
+        if not scope_claim:
+            return []
+        if isinstance(scope_claim, str):
+            return [scope for scope in scope_claim.split() if scope]
+        return []
+
+    @staticmethod
+    def _list_claim(claim: Any) -> List[str]:
+        if isinstance(claim, str):
+            return [claim] if claim else []
+        if isinstance(claim, list):
+            return [value for value in claim if isinstance(value, str) and value]
+        return []
 
     @staticmethod
     def _decode_jwt_claims(token: str) -> Dict[str, Any]:
@@ -219,6 +252,14 @@ class Client:
         **kwargs,
     ) -> requests.Response:
         url = self._to_url(path_or_url)
+        if self._is_sharepoint_rest_url(url):
+            raise RuntimeError(
+                "SharePoint REST _api calls are not supported. "
+                "simple-sharepoint uses Microsoft Graph only; received url={0!r}".format(
+                    url
+                )
+            )
+
         headers = dict(kwargs.pop("headers", {}) or {})
         if self._needs_graph_auth(url):
             headers["Authorization"] = "Bearer {0}".format(self._get_access_token())
@@ -250,6 +291,12 @@ class Client:
     @staticmethod
     def _needs_graph_auth(url: str) -> bool:
         return url.startswith("{0}/".format(GRAPH_ROOT))
+
+    @staticmethod
+    def _is_sharepoint_rest_url(url: str) -> bool:
+        parsed = urlparse(url)
+        hostname = parsed.hostname or ""
+        return hostname.endswith(".sharepoint.com") and "/_api/" in parsed.path
 
     def _drive_item_path(self, drive_path: str, action: Optional[str] = None) -> str:
         site_id = self._site_graph_id()

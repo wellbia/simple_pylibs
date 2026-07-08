@@ -34,6 +34,9 @@ If omitted, it is inferred from the SharePoint host name. For example, `https://
 - Grant Microsoft Graph application permission for the target SharePoint site and complete admin consent.<br>
 Use `Sites.Read.All` for read-only workflows, or `Sites.ReadWrite.All` / `Sites.FullControl.All` for uploads and folder creation.
 
+- Runtime requests must use Microsoft Graph URLs under `https://graph.microsoft.com/v1.0`.<br>
+If logs still show SharePoint REST `/_api` URLs or token audience `00000003-0000-0ff1-ce00-000000000000`, an old Office365 REST code path or package version is still being executed.
+
 - <b>BASE_URL</b> refers to the main URL of the sharepoint.<br>
 ( format ) https://<SHAREPOINT_DOMAIN>/sites/<SHAREPOINT_SITE><br>
 ( ex ) `https://test.sharepoint.com/sites/testsite`
