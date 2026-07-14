@@ -20,14 +20,17 @@ setup(
         ],
     },
     install_requires=[
-        "msal==1.21.0",
-        "requests==2.28.2",
+        "cryptography==49.0.0",
+        "msal==1.37.0",
+        "requests==2.34.2",
     ],
+    python_requires=">=3.10",
     classifiers=[
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
     ],
 )
